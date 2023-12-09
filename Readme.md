@@ -12,8 +12,8 @@ Experimental toy OS written in Rust
 
 ## TODO
 
-* Bootloader
+* Learning resources
   - https://osblog.stephenmarz.com/ch1.html
-* Kernel :)
+  - https://github.com/mit-pdos/xv6-riscv/tree/riscv
   - https://www.meyerzinn.tech/posts/2023/03/05/running-rust-code-on-risc-v-in-qemu/
   - https://os.phil-opp.com
