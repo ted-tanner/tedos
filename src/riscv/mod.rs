@@ -1,4 +1,6 @@
-mod registers;
+pub mod qemu;
+pub mod registers;
+
 pub use registers::*;
 
 use core::arch::asm;

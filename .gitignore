@@ -1,2 +1,5 @@
 target/
 tedos-fs.img
+tedos-kernel.elf
+
+.DS_Store

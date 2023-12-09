@@ -1,7 +1,6 @@
 .section .text
 .global _boot
 
-
 _boot:
     // If not hart 0, just wait for an interrupt
     csrr t0, mhartid
