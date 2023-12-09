@@ -10,3 +10,13 @@ pub fn wait_for_interrupt() {
         asm!("wfi");
     }
 }
+
+pub fn abort() -> ! {
+    unsafe {
+        asm!("unimp");
+    }
+
+    loop {
+        wait_for_interrupt();
+    }
+}
