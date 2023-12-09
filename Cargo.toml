@@ -1,0 +1,16 @@
+[package]
+name = "tedos-kernel"
+version = "0.1.0"
+edition = "2021"
+authors = ["Tanner Davies <tanner.e.davies@protonmail.com>"]
+
+[lib]
+doc = false
+name = "tedoskernel"
+crate-type = ["staticlib"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
