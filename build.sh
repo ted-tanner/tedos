@@ -6,15 +6,20 @@ else
     echo "Invalid build profile: $2"
     exit 1
 fi
+RS_OUT_DIR=./target/riscv64gc-unknown-none-elf/$BUILD_PROFILE
 
 LD_SCRIPT=-T./src/riscv/qemu/virt.ld
-ASM_SRCS=./src/riscv/boot.S
+ASM_SRCS=./src/riscv/boot.asm
 
-CC=riscv64-unknown-elf-gcc
-CFLAGS="-Wall -Wextra -Wextra -static -ffreestanding -nostdlib -fno-rtti -fno-exceptions -march=rv64gc -mabi=lp64d -Wl,--no-warn-rwx-segment"
+AS=riscv64-unknown-elf-as
+AS_FLAGS="-Wall -march=rv64gc -mabi=lp64d"
+AS_OUT=$RS_OUT_DIR/boot.o
+
+LD=riscv64-unknown-elf-ld
+LD_FLAGS="-static -nostdlib --no-warn-rwx-segment"
+
 ELF_OUT=tedos-kernel.elf
 
-RS_OUT_DIR=./target/riscv64gc-unknown-none-elf/$BUILD_PROFILE
 KERNEL_LIB=tedoskernel
 
 QEMU=qemu-system-riscv64
@@ -26,11 +31,15 @@ function build {
 	if [[ $BUILD_PROFILE = "debug" ]]; then
         (PS4="\000" set -x;
 	     cargo build &&
-	     $CC $CFLAGS -O0 -g $LD_SCRIPT $ASM_SRCS -o $ELF_OUT -L$RS_OUT_DIR -l$KERNEL_LIB) || exit 1
+	         $AS $AS_FLAGS $ASM_SRCS -o $AS_OUT 1> /dev/null &&
+             $LD $LD_FLAGS $LD_SCRIPT $AS_OUT -o $ELF_OUT -L$RS_OUT_DIR -l$KERNEL_LIB
+        ) || exit 1
 	elif [[ $BUILD_PROFILE = "release" ]]; then
         (PS4="\000" set -x;
 	     cargo build --release &&
-	     $CC $CFLAGS -O3 $LD_SCRIPT $ASM_SRCS -o $ELF_OUT -L$RS_OUT_DIR -l$KERNEL_LIB) || exit 1
+             $AS $AS_FLAGS $ASM_SRCS -o $AS_OUT 1> /dev/null &&
+             $LD $LD_FLAGS $LD_SCRIPT $AS_OUT -o $ELF_OUT -L$RS_OUT_DIR -l$KERNEL_LIB
+        ) || exit 1
     fi
 }
 
