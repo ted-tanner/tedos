@@ -21,34 +21,36 @@ impl Uart {
         Self { _private: () }
     }
 
-    pub unsafe fn init() {
-        // Set word length to 8 bits
-        let lcr_value = 0b11;
-        UART_LCR.write_volatile(lcr_value);
+    pub fn init() {
+        unsafe {
+            // Set word length to 8 bits
+            let lcr_value = 0b11;
+            UART_LCR.write_volatile(lcr_value);
 
-        // Enable FIFO
-        UART_FCR.write_volatile(0b01);
+            // Enable FIFO
+            UART_FCR.write_volatile(0b01);
 
-        // Enable receive interrupts
-        UART_IER.write_volatile(0b01);
+            // Enable receive interrupts
+            UART_IER.write_volatile(0b01);
 
-        // Set baud rate to 2400 (from NS16550A specification)
-        const CLOCK_RATE: u32 = 22_729_000; // 22.729 MHz
-        const BAUD_RATE: u32 = 2_400;
-        // Add 1.0 to the divisor to round up (equivalent to ceil() when truncating to an int)
-        const DIVISOR: u16 = ((CLOCK_RATE as f64 / (BAUD_RATE as f64 * 16.0)) + 1.0) as u16;
-        const DIVISOR_LEAST: u8 = (DIVISOR & 0xff) as u8;
-        const DIVISOR_MOST: u8 = (DIVISOR >> 8) as u8;
+            // Set baud rate to 2400 (from NS16550A specification)
+            const CLOCK_RATE: u32 = 22_729_000; // 22.729 MHz
+            const BAUD_RATE: u32 = 2_400;
+            // Add 1.0 to the divisor to round up (equivalent to ceil() when truncating to an int)
+            const DIVISOR: u16 = ((CLOCK_RATE as f64 / (BAUD_RATE as f64 * 16.0)) + 1.0) as u16;
+            const DIVISOR_LEAST: u8 = (DIVISOR & 0xff) as u8;
+            const DIVISOR_MOST: u8 = (DIVISOR >> 8) as u8;
 
-        // Set DLAB to 1 (DLAB is bit 7 of LCR)
-        UART_LCR.write_volatile(lcr_value | (1 << 7));
+            // Set DLAB to 1 (DLAB is bit 7 of LCR)
+            UART_LCR.write_volatile(lcr_value | (1 << 7));
 
-        // Set DLL and DLM
-        UART_DLL.write_volatile(DIVISOR_LEAST);
-        UART_DLM.write_volatile(DIVISOR_MOST);
+            // Set DLL and DLM
+            UART_DLL.write_volatile(DIVISOR_LEAST);
+            UART_DLM.write_volatile(DIVISOR_MOST);
 
-        // Set DLAB to 0
-        UART_LCR.write_volatile(lcr_value);
+            // Set DLAB to 0
+            UART_LCR.write_volatile(lcr_value);
+        }
     }
 
     pub fn getchar() -> Option<u8> {
