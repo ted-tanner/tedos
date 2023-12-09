@@ -11,13 +11,14 @@ _boot:
 	la a1, _bss_end # _bss_end is defined in the linker script
     call zeroize_section
 
-    # Zero out the stack
-    la a0, _stack_start # _stack_start is defined in the linker script
-	la a1, _stack_end # _stack_end is defined in the linker script
+    # Zero out the kernel stack
+    la a0, _kstack_start # _kstack_start is defined in the linker script
+	la a1, _kstack_end # _kstack_end is defined in the linker script
     call zeroize_section
 
-    # Load base address of memory region reserved for the stack
-    la sp, _stack_start # _stack_start is defined in the linker script
+    # Load base address of memory region reserved for the kernel
+    # stack (stack grows downwards, so start at end of region)
+    la sp, _kstack_end # _kstack_end is defined in the linker script
 
     call _kernel_init # _kernel_init is defined in Rust code
 

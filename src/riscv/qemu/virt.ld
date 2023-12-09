@@ -44,6 +44,6 @@ SECTIONS
     }
 
     /* 8 page stack for the kernel (hart0) */
-    PROVIDE(_stack_start = _bss_end);
-    PROVIDE(_stack_end = _stack_start + 0x8000);
+    PROVIDE(_kstack_start = _bss_end);
+    PROVIDE(_kstack_end = _kstack_start + 0x8000);
 }

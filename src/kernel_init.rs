@@ -7,7 +7,6 @@ pub extern "C" fn _kernel_init() -> ! {
     riscv::qemu::Uart::init();
 
     println!("Hello, world!");
-    panic!("Test panic");
 
     loop {
         riscv::wait_for_interrupt();
