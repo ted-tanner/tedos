@@ -7,19 +7,19 @@ _boot:
     bnez t0, uninitialized_hart
 
     # Zero out the .bss section (where global variables are stored)
-    la a0, _bss_start # _bss_start is defined in qemu-virt.ld
-	la a1, _bss_end # _bss_end is defined in qemu-virt.ld
+    la a0, _bss_start # _bss_start is defined in the linker script
+	la a1, _bss_end # _bss_end is defined in the linker script
     call zeroize_section
 
     # Zero out the stack
-    la a0, _stack_start # _stack_start is defined in qemu-virt.ld
-	la a1, _stack_end # _stack_end is defined in qemu-virt.ld
+    la a0, _stack_start # _stack_start is defined in the linker script
+	la a1, _stack_end # _stack_end is defined in the linker script
     call zeroize_section
 
     # Load base address of memory region reserved for the stack
-    la sp, _stack_start # _stack_start is defined in qemu-virt.ld
+    la sp, _stack_start # _stack_start is defined in the linker script
 
-    call _kernel_init # _kernel_init is defined in lib.rs
+    call _kernel_init # _kernel_init is defined in Rust code
 
 
 uninitialized_hart:
