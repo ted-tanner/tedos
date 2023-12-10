@@ -2,17 +2,27 @@
 
 use core::arch::asm;
 
-struct MRegisters {}
-struct SRegisters {}
-struct URegisters {}
+pub mod register_masks {
+    pub const MSTATUS_MODE_BITS: usize = 3 << 11;
 
-impl MRegisters {
+    pub const MSTATUS_MMODE: usize = 3 << 11;
+    pub const MSTATUS_SMODE: usize = 1 << 11;
+    pub const MSTATUS_UMODE: usize = 0 << 11;
+
+    pub const MSTATUS_MMODE_INTERRUPT_ENABLE: usize = 1 << 3;
+
+    pub const SIE_EXTERNAL_INTERRUPTS: usize = 1 << 9;
+    pub const SIE_TIMER_INTERRUPTS: usize = 1 << 5;
+    pub const SIE_SOFTWARE_INTERRUPTS: usize = 1 << 1;
+}
+
+pub struct Registers {}
+
+impl Registers {
     #[inline(always)]
-    pub fn mhartid() -> usize {
-        let mhartid: usize;
-        unsafe {
-            asm!("csrr {}, mhartid", out(reg) mhartid);
-        }
+    pub unsafe fn mhartid() -> usize {
+        let mhartid;
+        asm!("csrr {}, mhartid", out(reg) mhartid);
         mhartid
     }
 
@@ -22,11 +32,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mstatus() -> usize {
-        let mstatus: usize;
-        unsafe {
-            asm!("csrr {}, mstatus", out(reg) mstatus);
-        }
+    pub unsafe fn mstatus() -> usize {
+        let mstatus;
+        asm!("csrr {}, mstatus", out(reg) mstatus);
         mstatus
     }
 
@@ -36,11 +44,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mepc() -> usize {
-        let mepc: usize;
-        unsafe {
-            asm!("csrr {}, mepc", out(reg) mepc);
-        }
+    pub unsafe fn mepc() -> usize {
+        let mepc;
+        asm!("csrr {}, mepc", out(reg) mepc);
         mepc
     }
 
@@ -50,11 +56,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mcause() -> usize {
-        let mcause: usize;
-        unsafe {
-            asm!("csrr {}, mcause", out(reg) mcause);
-        }
+    pub unsafe fn mcause() -> usize {
+        let mcause;
+        asm!("csrr {}, mcause", out(reg) mcause);
         mcause
     }
 
@@ -64,11 +68,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mtval() -> usize {
-        let mtval: usize;
-        unsafe {
-            asm!("csrr {}, mtval", out(reg) mtval);
-        }
+    pub unsafe fn mtval() -> usize {
+        let mtval;
+        asm!("csrr {}, mtval", out(reg) mtval);
         mtval
     }
 
@@ -78,11 +80,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mscratch() -> usize {
-        let mscratch: usize;
-        unsafe {
-            asm!("csrr {}, mscratch", out(reg) mscratch);
-        }
+    pub unsafe fn mscratch() -> usize {
+        let mscratch;
+        asm!("csrr {}, mscratch", out(reg) mscratch);
         mscratch
     }
 
@@ -92,11 +92,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mie() -> usize {
-        let mie: usize;
-        unsafe {
-            asm!("csrr {}, mie", out(reg) mie);
-        }
+    pub unsafe fn mie() -> usize {
+        let mie;
+        asm!("csrr {}, mie", out(reg) mie);
         mie
     }
 
@@ -106,11 +104,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn medeleg() -> usize {
-        let medeleg: usize;
-        unsafe {
-            asm!("csrr {}, medeleg", out(reg) medeleg);
-        }
+    pub unsafe fn medeleg() -> usize {
+        let medeleg;
+        asm!("csrr {}, medeleg", out(reg) medeleg);
         medeleg
     }
 
@@ -120,11 +116,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mideleg() -> usize {
-        let mideleg: usize;
-        unsafe {
-            asm!("csrr {}, mideleg", out(reg) mideleg);
-        }
+    pub unsafe fn mideleg() -> usize {
+        let mideleg;
+        asm!("csrr {}, mideleg", out(reg) mideleg);
         mideleg
     }
 
@@ -134,11 +128,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mtvec() -> usize {
-        let mtvec: usize;
-        unsafe {
-            asm!("csrr {}, mtvec", out(reg) mtvec);
-        }
+    pub unsafe fn mtvec() -> usize {
+        let mtvec;
+        asm!("csrr {}, mtvec", out(reg) mtvec);
         mtvec
     }
 
@@ -148,11 +140,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn mcounteren() -> usize {
-        let mcounteren: usize;
-        unsafe {
-            asm!("csrr {}, mcounteren", out(reg) mcounteren);
-        }
+    pub unsafe fn mcounteren() -> usize {
+        let mcounteren;
+        asm!("csrr {}, mcounteren", out(reg) mcounteren);
         mcounteren
     }
 
@@ -162,11 +152,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn pmpcfg0() -> usize {
-        let pmpcfg0: usize;
-        unsafe {
-            asm!("csrr {}, pmpcfg0", out(reg) pmpcfg0);
-        }
+    pub unsafe fn pmpcfg0() -> usize {
+        let pmpcfg0;
+        asm!("csrr {}, pmpcfg0", out(reg) pmpcfg0);
         pmpcfg0
     }
 
@@ -176,11 +164,9 @@ impl MRegisters {
     }
 
     #[inline(always)]
-    pub fn pmpaddr0() -> usize {
-        let pmpaddr0: usize;
-        unsafe {
-            asm!("csrr {}, pmpaddr0", out(reg) pmpaddr0);
-        }
+    pub unsafe fn pmpaddr0() -> usize {
+        let pmpaddr0;
+        asm!("csrr {}, pmpaddr0", out(reg) pmpaddr0);
         pmpaddr0
     }
 
@@ -188,15 +174,11 @@ impl MRegisters {
     pub unsafe fn set_pmpaddr0(pmpaddr0: usize) {
         asm!("csrw pmpaddr0, {}", in(reg) pmpaddr0);
     }
-}
 
-impl SRegisters {
     #[inline(always)]
-    pub fn sstatus() -> usize {
-        let sstatus: usize;
-        unsafe {
-            asm!("csrr {}, sstatus", out(reg) sstatus);
-        }
+    pub unsafe fn sstatus() -> usize {
+        let sstatus;
+        asm!("csrr {}, sstatus", out(reg) sstatus);
         sstatus
     }
 
@@ -206,11 +188,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn sepc() -> usize {
-        let sepc: usize;
-        unsafe {
-            asm!("csrr {}, sepc", out(reg) sepc);
-        }
+    pub unsafe fn sepc() -> usize {
+        let sepc;
+        asm!("csrr {}, sepc", out(reg) sepc);
         sepc
     }
 
@@ -220,11 +200,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn scause() -> usize {
-        let scause: usize;
-        unsafe {
-            asm!("csrr {}, scause", out(reg) scause);
-        }
+    pub unsafe fn scause() -> usize {
+        let scause;
+        asm!("csrr {}, scause", out(reg) scause);
         scause
     }
 
@@ -234,11 +212,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn stval() -> usize {
-        let stval: usize;
-        unsafe {
-            asm!("csrr {}, stval", out(reg) stval);
-        }
+    pub unsafe fn stval() -> usize {
+        let stval;
+        asm!("csrr {}, stval", out(reg) stval);
         stval
     }
 
@@ -248,11 +224,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn sscratch() -> usize {
-        let sscratch: usize;
-        unsafe {
-            asm!("csrr {}, sscratch", out(reg) sscratch);
-        }
+    pub unsafe fn sscratch() -> usize {
+        let sscratch;
+        asm!("csrr {}, sscratch", out(reg) sscratch);
         sscratch
     }
 
@@ -262,11 +236,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn sip() -> usize {
-        let sip: usize;
-        unsafe {
-            asm!("csrr {}, sip", out(reg) sip);
-        }
+    pub unsafe fn sip() -> usize {
+        let sip;
+        asm!("csrr {}, sip", out(reg) sip);
         sip
     }
 
@@ -276,11 +248,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn sedeleg() -> usize {
-        let sedeleg: usize;
-        unsafe {
-            asm!("csrr {}, sedeleg", out(reg) sedeleg);
-        }
+    pub unsafe fn sedeleg() -> usize {
+        let sedeleg;
+        asm!("csrr {}, sedeleg", out(reg) sedeleg);
         sedeleg
     }
 
@@ -290,11 +260,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn sideleg() -> usize {
-        let sideleg: usize;
-        unsafe {
-            asm!("csrr {}, sideleg", out(reg) sideleg);
-        }
+    pub unsafe fn sideleg() -> usize {
+        let sideleg;
+        asm!("csrr {}, sideleg", out(reg) sideleg);
         sideleg
     }
 
@@ -304,11 +272,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn stvec() -> usize {
-        let stvec: usize;
-        unsafe {
-            asm!("csrr {}, stvec", out(reg) stvec);
-        }
+    pub unsafe fn stvec() -> usize {
+        let stvec;
+        asm!("csrr {}, stvec", out(reg) stvec);
         stvec
     }
 
@@ -318,11 +284,9 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn satp() -> usize {
-        let satp: usize;
-        unsafe {
-            asm!("csrr {}, satp", out(reg) satp);
-        }
+    pub unsafe fn satp() -> usize {
+        let satp;
+        asm!("csrr {}, satp", out(reg) satp);
         satp
     }
 
@@ -332,17 +296,25 @@ impl SRegisters {
     }
 
     #[inline(always)]
-    pub fn sfence_vma_flush_tlb() {
-        unsafe {
-            asm!("sfence.vma zero, zero");
-        }
+    pub unsafe fn sie() -> usize {
+        let sie;
+        asm!("csrr {}, sie", out(reg) sie);
+        sie
     }
-}
 
-impl URegisters {
+    #[inline(always)]
+    pub unsafe fn set_sie(sie: usize) {
+        asm!("csrw sie, {}", in(reg) sie);
+    }
+
+    #[inline(always)]
+    pub unsafe fn sfence_vma_flush_tlb() {
+        asm!("sfence.vma zero, zero");
+    }
+
     #[inline(always)]
     pub fn tp() -> usize {
-        let tp: usize;
+        let tp;
         unsafe {
             asm!("mv {}, tp", out(reg) tp);
         }
@@ -356,7 +328,7 @@ impl URegisters {
 
     #[inline(always)]
     pub fn sp() -> usize {
-        let sp: usize;
+        let sp;
         unsafe {
             asm!("mv {}, sp", out(reg) sp);
         }
@@ -370,7 +342,7 @@ impl URegisters {
 
     #[inline(always)]
     pub fn ra() -> usize {
-        let ra: usize;
+        let ra;
         unsafe {
             asm!("mv {}, ra", out(reg) ra);
         }

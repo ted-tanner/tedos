@@ -2,7 +2,7 @@
 
 Experimental toy OS written in Rust
 
-## Installing build dependencies on macOS
+## Installing RiscV assembler and linker on macOS
 
 `brew install riscv-tools`
 

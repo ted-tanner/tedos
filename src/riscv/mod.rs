@@ -5,12 +5,6 @@ pub use registers::*;
 
 use core::arch::asm;
 
-pub fn wait_for_interrupt() {
-    unsafe {
-        asm!("wfi");
-    }
-}
-
 pub fn abort() -> ! {
     unsafe {
         asm!("unimp");
@@ -18,5 +12,11 @@ pub fn abort() -> ! {
 
     loop {
         wait_for_interrupt();
+    }
+}
+
+pub fn wait_for_interrupt() {
+    unsafe {
+        asm!("wfi");
     }
 }

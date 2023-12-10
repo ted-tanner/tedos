@@ -17,8 +17,7 @@ AS_OUT=$RS_OUT_DIR/boot.o
 
 LD=riscv64-unknown-elf-ld
 LD_FLAGS="-static -nostdlib --no-warn-rwx-segment"
-
-ELF_OUT=tedos-kernel.elf
+LD_OUT=tedos-kernel.elf
 
 KERNEL_LIB=tedoskernel
 
@@ -32,13 +31,13 @@ function build {
         (PS4="\000" set -x;
 	     cargo build &&
 	         $AS $AS_FLAGS $ASM_SRCS -o $AS_OUT 1> /dev/null &&
-             $LD $LD_FLAGS $LD_SCRIPT $AS_OUT -o $ELF_OUT -L$RS_OUT_DIR -l$KERNEL_LIB
+             $LD $LD_FLAGS $LD_SCRIPT $AS_OUT -o $LD_OUT -L$RS_OUT_DIR -l$KERNEL_LIB
         ) || exit 1
 	elif [[ $BUILD_PROFILE = "release" ]]; then
         (PS4="\000" set -x;
 	     cargo build --release &&
              $AS $AS_FLAGS $ASM_SRCS -o $AS_OUT 1> /dev/null &&
-             $LD $LD_FLAGS $LD_SCRIPT $AS_OUT -o $ELF_OUT -L$RS_OUT_DIR -l$KERNEL_LIB
+             $LD $LD_FLAGS $LD_SCRIPT $AS_OUT -o $LD_OUT -L$RS_OUT_DIR -l$KERNEL_LIB
         ) || exit 1
     fi
 }
@@ -51,12 +50,12 @@ elif [[ $1 = "run" ]]; then
         -smp $QEMU_CPU_COUNT -m $QEMU_MEM \
         -nographic -serial mon:stdio \
         -bios none \
-        -kernel $ELF_OUT \
+        -kernel $LD_OUT \
         -drive file=$QEMU_DISK,if=none,format=raw,id=dsk0 \
         -device virtio-blk-device,drive=dsk0,bus=virtio-mmio-bus.0
 elif [[ $1 = "clean" ]]; then
     cargo clean
-    rm -f $ELF_OUT
+    rm -f $LD_OUT
 else
     echo "Usage: ./$(basename $0) <build|run|clean> <optional:debug|release>"
     exit 1
