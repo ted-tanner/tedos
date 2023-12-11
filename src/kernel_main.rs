@@ -1,16 +1,15 @@
+use crate::platform::uart::{Uart, UartController};
+use crate::platform::{Platform, PlatformPrimitives};
 use crate::println;
-use crate::riscv;
-use crate::riscv::qemu::uart::Uart;
 
 #[no_mangle]
 pub unsafe extern "C" fn kernel_main() {
     // TODO: Still need to initialize the CLINT
-    // Initialize the UART
     Uart::init();
 
     println!("Hello, world!");
 
     loop {
-        riscv::wait_for_interrupt();
+        Platform::wait_for_interrupt();
     }
 }

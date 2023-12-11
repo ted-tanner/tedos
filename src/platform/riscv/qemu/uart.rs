@@ -1,5 +1,6 @@
-#![allow(dead_code)]
 // QEMU emulates the NS16550A UART
+
+use crate::platform::uart::UartController;
 
 const UART_BASE: *mut u8 = 0x1000_0000 as *mut u8;
 
@@ -11,14 +12,14 @@ const UART_LSR: *mut u8 = 0x1000_0005 as *mut u8;
 const UART_DLL: *mut u8 = UART_BASE;
 const UART_DLM: *mut u8 = UART_IER;
 
-pub struct Uart {}
+pub struct Uart;
 
-impl Uart {
-    pub fn get() -> Self {
-        Self {}
+impl UartController for Uart {
+    fn get_ref() -> Self {
+        Uart {}
     }
 
-    pub unsafe fn init() {
+    unsafe fn init() {
         // Set word length to 8 bits
         let lcr_value = 0x03;
         UART_LCR.write_volatile(lcr_value);
@@ -48,7 +49,7 @@ impl Uart {
         UART_LCR.write_volatile(lcr_value);
     }
 
-    pub fn getchar() -> Option<u8> {
+    fn getchar() -> Option<u8> {
         unsafe {
             if UART_LSR.read_volatile() & 0b01 == 0 {
                 // Nothing available to read
@@ -59,7 +60,7 @@ impl Uart {
         }
     }
 
-    pub fn putchar(c: u8) {
+    fn putchar(c: u8) {
         unsafe {
             UART_BASE.write_volatile(c);
         }

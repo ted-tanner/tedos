@@ -20,7 +20,7 @@ _boot:
     # stack (stack grows downwards, so start at end of region)
     la sp, _kstack_end # _kstack_end is defined in the linker script
 
-    call kernel_init # kernel_init is defined in Rust code
+    call _kernel_init # _kernel_init is defined in Rust code
 
 
 uninitialized_hart:

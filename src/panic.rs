@@ -1,9 +1,10 @@
 use core::panic::PanicInfo;
 
-use crate::{println, riscv};
+use crate::platform::{Platform, PlatformPrimitives};
+use crate::println;
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("\n{}", info);
-    riscv::abort();
+    Platform::abort();
 }
