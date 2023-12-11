@@ -1,4 +1,6 @@
 target/
+.cargo/
+
 tedos-fs.img
 tedos-kernel.elf
 

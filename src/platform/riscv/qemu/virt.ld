@@ -43,7 +43,8 @@ SECTIONS
         PROVIDE(_bss_end = .);
     }
 
-    /* 8 page stack for the kernel (hart0) */
+    /* 4 page stack for the kernel (hart0) */
     PROVIDE(_kstack_start = _bss_end);
-    PROVIDE(_kstack_end = _kstack_start + 0x8000);
+    PROVIDE(_kstack_end = _kstack_start + 0x4000);
+    PROVIDE(_heap_start = _kstack_end);
 }
