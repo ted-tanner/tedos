@@ -1,5 +1,6 @@
 #![no_std]
 
+mod alloc;
 mod kernel_main;
 mod panic;
 mod platform;

@@ -1,3 +1,5 @@
+use crate::alloc::KinitHeap;
+
 const CYCLES_BETWEEN_INTERRUPTS: usize = 2_500_000;
 
 const CLINT_BASE: *mut u8 = 0x0200_0000 as *mut u8;
@@ -11,7 +13,8 @@ impl Clint {
     pub unsafe fn init_timer_interrupts(hartid: usize) {
         let next_interrupt_time =
             CLINT_CYCLES_SINCE_BOOT.read_volatile() + CYCLES_BETWEEN_INTERRUPTS;
-        get_hart_interruptor(hartid).write_volatile(1);
+
+        let register_scratch: &mut [u8; 5] = KinitHeap::alloc();
 
         // From xv6-riscv:
         // // prepare information in scratch[] for timervec.
@@ -31,6 +34,8 @@ impl Clint {
 
         // // enable machine-mode timer interrupts.
         // w_mie(r_mie() | MIE_MTIE);
+
+        get_hart_interruptor(hartid).write_volatile(1);
     }
 }
 
