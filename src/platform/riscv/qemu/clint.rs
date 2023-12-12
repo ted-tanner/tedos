@@ -1,45 +1,32 @@
-use crate::alloc::KinitHeap;
+use core::arch::asm;
+
+use crate::platform::hart;
+use crate::platform::riscv::registers::Registers;
 
 const CYCLES_BETWEEN_INTERRUPTS: usize = 2_500_000;
 
-const CLINT_BASE: *mut u8 = 0x0200_0000 as *mut u8;
-const CLINT_INTERRUPTOR_BASE: *mut u8 = 0x0200_4000 as *mut u8;
+const CLINT_INTERRUPTOR_BASE: *mut usize = 0x0200_4000 as *mut usize;
 const CLINT_CYCLES_SINCE_BOOT: *const usize = 0x0200_bff8 as *const usize;
 
-pub struct Clint {}
+/// Must be called from Machine Mode
+pub unsafe fn init_timer_interrupts(hartid: usize) {
+    let next_interrupt_time = CLINT_CYCLES_SINCE_BOOT.read_volatile() + CYCLES_BETWEEN_INTERRUPTS;
 
-impl Clint {
-    /// Must be called from Machine Mode
-    pub unsafe fn init_timer_interrupts(hartid: usize) {
-        let next_interrupt_time =
-            CLINT_CYCLES_SINCE_BOOT.read_volatile() + CYCLES_BETWEEN_INTERRUPTS;
+    let interruptor = CLINT_INTERRUPTOR_BASE.add(hartid);
+    interruptor.write_volatile(next_interrupt_time);
 
-        let register_scratch: &mut [u8; 5] = KinitHeap::alloc();
+    // When the timer interrupt fires, will need the base address of the
+    // scratch space for this hart
+    let scratch_ptr = hart::scratch_ptr();
+    Registers::set_mscratch(scratch_ptr as usize);
+    // Will also need the address of the CLINT interruptor and
+    // CYCLES_BETWEEN_INTERRUPTS
+    *scratch_ptr.add(3) = interruptor as usize;
+    *scratch_ptr.add(4) = CYCLES_BETWEEN_INTERRUPTS;
 
-        // From xv6-riscv:
-        // // prepare information in scratch[] for timervec.
-        // // scratch[0..2] : space for timervec to save registers.
-        // // scratch[3] : address of CLINT MTIMECMP register.
-        // // scratch[4] : desired interval (in cycles) between timer interrupts.
-        // uint64 *scratch = &timer_scratch[id][0];
-        // scratch[3] = CLINT_MTIMECMP(id);
-        // scratch[4] = interval;
-        // w_mscratch((uint64)scratch);
-
-        // // set the machine-mode trap handler.
-        // w_mtvec((uint64)timervec);
-
-        // // enable machine-mode interrupts.
-        // w_mstatus(r_mstatus() | MSTATUS_MIE);
-
-        // // enable machine-mode timer interrupts.
-        // w_mie(r_mie() | MIE_MTIE);
-
-        get_hart_interruptor(hartid).write_volatile(1);
-    }
-}
-
-#[inline]
-fn get_hart_interruptor(hartid: usize) -> *mut u8 {
-    unsafe { CLINT_INTERRUPTOR_BASE.add(8 * hartid) }
+    // Load pointer to _timer_interrupt_entry (defined in an asm file) into
+    // into the mtvec register
+    let timer_interrupt_entry_addr: usize;
+    asm!("la {}, _timer_interrupt_entry", out(reg) timer_interrupt_entry_addr);
+    Registers::set_mtvec(timer_interrupt_entry_addr);
 }

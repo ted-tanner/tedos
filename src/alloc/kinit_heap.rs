@@ -2,7 +2,7 @@ use core::slice;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
 extern "C" {
-    static _kinit_heap_start: *mut u8; // Defined in the linker
+    static mut _heap_start: u8; // Defined in the linker script
 }
 
 // The kinit heap is used to allocate memory for the kernel before the
@@ -25,7 +25,7 @@ impl KinitHeap {
             panic!("Tried to access kinit heap while locked");
         }
 
-        let start = _kinit_heap_start.add(start_pos);
+        let start = (&mut _heap_start as *mut u8).add(start_pos);
         let space = slice::from_raw_parts_mut(start, N);
 
         space.try_into().unwrap_unchecked()

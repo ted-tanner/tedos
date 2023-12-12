@@ -14,6 +14,8 @@ pub mod register_masks {
     pub const SIE_EXTERNAL_INTERRUPTS: usize = 1 << 9;
     pub const SIE_TIMER_INTERRUPTS: usize = 1 << 5;
     pub const SIE_SOFTWARE_INTERRUPTS: usize = 1 << 1;
+
+    pub const MIE_TIMER_INTERRUPTS: usize = 1 << 7;
 }
 
 pub struct Registers {}

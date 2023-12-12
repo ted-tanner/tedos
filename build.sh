@@ -13,6 +13,8 @@ else
 fi
 
 if [[ $TARGET_ARCH == "riscv64" ]]; then
+    ASM_SRCS="./src/platform/riscv/boot.asm ./src/platform/riscv/timer_interrupt_entry.asm"
+
     CARGO_BUILD_TARGET=riscv64gc-unknown-none-elf
     RS_OUT_DIR=./target/riscv64gc-unknown-none-elf/$BUILD_PROFILE
 
@@ -28,7 +30,6 @@ if [[ $TARGET_ARCH == "riscv64" ]]; then
 
     if [[ $TARGET_MACHINE == "rv64qemu" ]]; then
         LD_SCRIPT=-T./src/platform/riscv/qemu/virt.ld
-        ASM_SRCS=./src/platform/riscv/boot.asm
 
         QEMU=qemu-system-riscv64
         QEMU_CPU_COUNT=4

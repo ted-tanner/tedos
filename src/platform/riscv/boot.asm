@@ -1,6 +1,7 @@
 .section .text
 .global _boot
 
+.align 4    
 _boot:
     # If not hart 0, just wait for an interrupt
     csrr t0, mhartid
@@ -14,6 +15,11 @@ _boot:
     # Zero out the kernel stack
     la a0, _kstack_start # _kstack_start is defined in the linker script
 	la a1, _kstack_end # _kstack_end is defined in the linker script
+    call zeroize_section
+
+    # Zero out the hart list
+    la a0, _hartlist_start # _hartlist_start is defined in the linker script
+	la a1, _hartlist_end # _hartlist_end is defined in the linker script
     call zeroize_section
 
     # Load base address of memory region reserved for the kernel
