@@ -3,12 +3,12 @@ mod riscv;
 #[cfg(target_arch = "riscv64")]
 pub type Platform = riscv::RiscVPlatform;
 
-mod hart;
-
 pub trait PlatformPrimitives {
     unsafe fn kernel_init();
 
     fn page_size() -> usize;
+    fn hart_count() -> usize;
+    fn heap_end() -> *const u8;
 
     fn curr_hartid() -> usize;
 

@@ -69,6 +69,18 @@ impl PlatformPrimitives for RiscVPlatform {
         4096
     }
 
+    #[cfg(target_machine = "rv64qemu")]
+    #[inline(always)]
+    fn hart_count() -> usize {
+        qemu::HART_COUNT
+    }
+
+    #[cfg(target_machine = "rv64qemu")]
+    #[inline(always)]
+    fn heap_end() -> *const u8 {
+        qemu::HEAP_END
+    }
+
     #[inline(always)]
     fn curr_hartid() -> usize {
         Registers::tp()

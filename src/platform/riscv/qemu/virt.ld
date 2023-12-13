@@ -1,9 +1,13 @@
 OUTPUT_ARCH("riscv")
 ENTRY(_boot)
 
+/* qemu/mod.rs and qemu/boot.asm contain some constants whose values may be affected
+ * by changing values in this file. Be careful to keep this file synchronized with
+ * qemu/mod.rs and qemu/boot.asm. */
+
 SECTIONS
 {
-     /* Load _boot into 0x80000000, where QEMU will jump to to start executing */
+    /* Load _boot into 0x80000000, where QEMU will jump to to start executing */
     . = 0x80000000;
 
     /* Kernel code */
@@ -13,7 +17,7 @@ SECTIONS
         PROVIDE(_text_end = .);
     }
 
-    /* Global constnatds */
+    /* Global constants */
     .rodata : {
         PROVIDE(_rodata_start = .);
         . = ALIGN(0x1000);
@@ -43,13 +47,9 @@ SECTIONS
         PROVIDE(_bss_end = .);
     }
 
-    /* 4-page stack for the kernel (hart0) */
+    /* 4 single-page stacks for the kernel (one for each hart) */
     PROVIDE(_kstack_start = _bss_end);
     PROVIDE(_kstack_end = _kstack_start + 0x4000);
 
-    /* 2-page space for storing hart metadata  */
-    PROVIDE(_hartlist_start = _kstack_end);
-    PROVIDE(_hartlist_end = _hartlist_start + 0x2000);
-
-    PROVIDE(_heap_start = _hartlist_end);
+    PROVIDE(_heap_start = _kstack_end);
 }

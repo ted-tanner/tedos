@@ -1,12 +1,14 @@
 use core::arch::asm;
 
-use crate::platform::hart;
 use crate::platform::riscv::registers::Registers;
+use crate::platform::riscv::qemu::HART_COUNT;
 
 const CYCLES_BETWEEN_INTERRUPTS: usize = 2_500_000;
 
 const CLINT_INTERRUPTOR_BASE: *mut usize = 0x0200_4000 as *mut usize;
 const CLINT_CYCLES_SINCE_BOOT: *const usize = 0x0200_bff8 as *const usize;
+
+static mut HART_SCRATCH_SPACE: [[usize; 5]; HART_COUNT] = [[0; 5]; HART_COUNT];
 
 /// Must be called from Machine Mode
 pub unsafe fn init_timer_interrupts(hartid: usize) {
@@ -17,7 +19,7 @@ pub unsafe fn init_timer_interrupts(hartid: usize) {
 
     // When the timer interrupt fires, will need the base address of the
     // scratch space for this hart
-    let scratch_ptr = hart::scratch_ptr();
+    let scratch_ptr = HART_SCRATCH_SPACE[hartid].as_mut_ptr();
     Registers::set_mscratch(scratch_ptr as usize);
     // Will also need the address of the CLINT interruptor and
     // CYCLES_BETWEEN_INTERRUPTS

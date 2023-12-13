@@ -32,9 +32,13 @@ if [[ $TARGET_ARCH == "riscv64" ]]; then
         LD_SCRIPT=-T./src/platform/riscv/qemu/virt.ld
 
         QEMU=qemu-system-riscv64
-        QEMU_CPU_COUNT=4
-        QEMU_MEM=128M
         QEMU_DISK=tedos-fs.img
+
+        # Before changing these, make sure to update the linker script,
+        # boot entry, and constants for QEMU in the Rust code to match
+        # the new parameters.
+        QEMU_HART_COUNT=4
+        QEMU_MEM=256M
     fi
 fi
 
@@ -65,7 +69,7 @@ if [[ $1 = "build" ]]; then
 elif [[ $1 = "run" ]]; then
     build &&
     $QEMU -machine virt -cpu rv64 \
-        -smp $QEMU_CPU_COUNT -m $QEMU_MEM \
+        -smp $QEMU_HART_COUNT -m $QEMU_MEM \
         -nographic -serial mon:stdio \
         -bios none \
         -kernel $LD_OUT \
