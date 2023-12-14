@@ -1,5 +1,3 @@
-// QEMU emulates the NS16550A UART
-
 use crate::platform::uart::UartController;
 
 const UART_BASE: *mut u8 = 0x1000_0000 as *mut u8;
@@ -15,10 +13,6 @@ const UART_DLM: *mut u8 = UART_IER;
 pub struct Uart;
 
 impl UartController for Uart {
-    fn get_ref() -> Self {
-        Uart {}
-    }
-
     unsafe fn init() {
         // Set word length to 8 bits
         let lcr_value = 0x03;

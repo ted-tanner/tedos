@@ -20,9 +20,7 @@ pub mod uart {
     #[cfg(target_machine = "rv64qemu")]
     pub type Uart = super::riscv::qemu::uart::Uart;
 
-    pub trait UartController: core::fmt::Write {
-        fn get_ref() -> Self;
-
+    pub trait UartController {
         unsafe fn init();
         fn putchar(byte: u8);
         fn getchar() -> Option<u8>;

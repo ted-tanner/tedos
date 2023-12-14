@@ -18,17 +18,19 @@ static mut KINIT_HEAP_POS: AtomicUsize = AtomicUsize::new(4);
 pub struct KinitHeap;
 
 impl KinitHeap {
-    pub unsafe fn alloc<const N: usize>() -> &'static mut [u8; N] {
-        let start_pos = KINIT_HEAP_POS.fetch_add(N, Ordering::Relaxed);
+    pub fn alloc<const N: usize>() -> &'static mut [u8; N] {
+        let start_pos = unsafe { KINIT_HEAP_POS.fetch_add(N, Ordering::Relaxed) };
 
         if start_pos == 0 {
             panic!("Tried to access kinit heap while locked");
         }
 
-        let start = (&mut _heap_start as *mut u8).add(start_pos);
-        let space = slice::from_raw_parts_mut(start, N);
+        unsafe {
+            let start = (&mut _heap_start as *mut u8).add(start_pos);
+            let space = slice::from_raw_parts_mut(start, N);
 
-        space.try_into().unwrap_unchecked()
+            space.try_into().unwrap_unchecked()
+        }
     }
 
     pub fn lock() -> usize {
