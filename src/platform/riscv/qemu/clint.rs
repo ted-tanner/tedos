@@ -3,7 +3,7 @@ use core::arch::asm;
 use crate::platform::riscv::qemu::HART_COUNT;
 use crate::platform::riscv::registers::Registers;
 
-const CYCLES_BETWEEN_INTERRUPTS: usize = 10_000_000;
+const CYCLES_BETWEEN_INTERRUPTS: usize = 1_200_000;
 
 const CLINT_INTERRUPTOR_BASE: *mut usize = 0x0200_4000 as *mut usize;
 const CLINT_CYCLES_SINCE_BOOT: *const usize = 0x0200_bff8 as *const usize;

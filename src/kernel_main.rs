@@ -25,7 +25,6 @@ pub unsafe extern "C" fn kernel_main() {
         }
         println!("TedOS is booting...");
         // TODO
-
         PRINT_BUFFER_INIT_STATE.store(2, Ordering::SeqCst);
     }
 
@@ -34,7 +33,6 @@ pub unsafe extern "C" fn kernel_main() {
         .unwrap_or(1);
     if state == 0 {
         // TODO
-
         // TODO: Print buffer init relies upon the kinitheap, so can't lock it until after print buffer init
         PAGING_AND_ALLOC_INIT_STATE.store(2, Ordering::SeqCst);
     }
@@ -44,7 +42,6 @@ pub unsafe extern "C" fn kernel_main() {
         .unwrap_or(1);
     if state == 0 {
         // TODO
-
         PLIC_INIT_STATE.store(2, Ordering::SeqCst);
     }
 
@@ -53,7 +50,6 @@ pub unsafe extern "C" fn kernel_main() {
         .unwrap_or(1);
     if state == 0 {
         // TODO
-
         FILESYSTEM_INIT_STATE.store(2, Ordering::SeqCst);
     }
 
@@ -62,7 +58,7 @@ pub unsafe extern "C" fn kernel_main() {
         || PLIC_INIT_STATE.load(Ordering::Relaxed) < 2
         || FILESYSTEM_INIT_STATE.load(Ordering::Relaxed) < 2
     {
-        // Platform::wait_for_interrupt();
+        Platform::wait_for_interrupt();
     }
 
     if Platform::curr_hartid() == 0 {

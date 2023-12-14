@@ -22,7 +22,7 @@ pub struct PrintBuf {
     buf: *mut u8,
     pos: usize,
 
-    state: AtomicU8,
+    pub state: AtomicU8,
 }
 
 impl PrintBuf {
@@ -123,17 +123,9 @@ impl PrintBuf {
 
 impl core::fmt::Write for PrintBuf {
     fn write_str(&mut self, s: &str) -> core::fmt::Result {
-        while self
-            .state
-            .compare_exchange(2, 3, Ordering::SeqCst, Ordering::Relaxed)
-            .is_err()
-        {}
-
         unsafe {
             self.push(s.as_bytes());
         }
-
-        self.state.store(2, Ordering::Relaxed);
         Ok(())
     }
 }
@@ -142,7 +134,19 @@ impl core::fmt::Write for PrintBuf {
 macro_rules! print {
     ($($args:tt)+) => ({
         use core::fmt::Write;
-        let _ = write!($crate::printbuf::get_ref(), $($args)+);
+        use core::sync::atomic::Ordering;
+
+        let print_buf = $crate::printbuf::get_ref();
+
+        while print_buf
+            .state
+            .compare_exchange(2, 3, Ordering::SeqCst, Ordering::Relaxed)
+            .is_err()
+        {}
+
+        let _ = write!(print_buf, $($args)+);
+
+        print_buf.state.store(2, Ordering::Relaxed);
     })
 }
 
