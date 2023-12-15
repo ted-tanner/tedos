@@ -5,18 +5,13 @@ use crate::platform::uart::{Uart, UartController};
 
 const PRINT_BUF_SIZE: usize = 2048;
 
-static mut BUF: PrintBuf = PrintBuf {
+pub static mut GLOBAL_PRINT_BUF: PrintBuf = PrintBuf {
     buf: 0 as *mut _,
     pos: 0,
 
     // 0 = uninitialized, 1 = initializing, 2 = ready, 3 = in use
     state: AtomicU8::new(0),
 };
-
-#[inline(always)]
-pub fn get_ref() -> &'static mut PrintBuf {
-    unsafe { &mut BUF }
-}
 
 pub struct PrintBuf {
     buf: *mut u8,
@@ -29,7 +24,7 @@ impl PrintBuf {
     pub unsafe fn init(&mut self) {
         let state = self
             .state
-            .compare_exchange(0, 1, Ordering::SeqCst, Ordering::Relaxed)
+            .compare_exchange(0, 1, Ordering::Acquire, Ordering::Relaxed)
             .unwrap_or(1);
 
         if state != 0 {
@@ -42,7 +37,7 @@ impl PrintBuf {
         }
         self.buf = KinitHeap::alloc::<PRINT_BUF_SIZE>() as *mut _;
 
-        self.state.store(2, Ordering::Relaxed);
+        self.state.store(2, Ordering::Release);
     }
 
     pub unsafe fn flush(&mut self) {
@@ -136,17 +131,17 @@ macro_rules! print {
         use core::fmt::Write;
         use core::sync::atomic::Ordering;
 
-        let print_buf = $crate::printbuf::get_ref();
+        let print_buf = unsafe { &mut $crate::printbuf::GLOBAL_PRINT_BUF };
 
         while print_buf
             .state
-            .compare_exchange(2, 3, Ordering::SeqCst, Ordering::Relaxed)
+            .compare_exchange(2, 3, Ordering::Acquire, Ordering::Relaxed)
             .is_err()
         {}
 
         let _ = write!(print_buf, $($args)+);
 
-        print_buf.state.store(2, Ordering::Relaxed);
+        print_buf.state.store(2, Ordering::Release);
     })
 }
 

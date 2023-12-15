@@ -16,11 +16,14 @@ pub trait PlatformPrimitives {
     fn wait_for_interrupt();
 }
 
+pub trait PTAllocator {}
+
 pub mod uart {
     #[cfg(target_machine = "rv64qemu")]
     pub type Uart = super::riscv::qemu::uart::Uart;
 
     pub trait UartController {
+        // No panics allowed in init() or putchar()
         unsafe fn init();
         fn putchar(byte: u8);
         fn getchar() -> Option<u8>;

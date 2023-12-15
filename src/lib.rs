@@ -2,6 +2,7 @@
 
 mod alloc;
 mod kernel_main;
+mod locks;
 mod panic;
 mod platform;
 mod printbuf;

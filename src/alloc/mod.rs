@@ -19,7 +19,7 @@ pub struct KinitHeap;
 
 impl KinitHeap {
     pub fn alloc<const N: usize>() -> &'static mut [u8; N] {
-        let start_pos = unsafe { KINIT_HEAP_POS.fetch_add(N, Ordering::Relaxed) };
+        let start_pos = unsafe { KINIT_HEAP_POS.fetch_add(N, Ordering::SeqCst) };
 
         if start_pos == 0 {
             panic!("Tried to access kinit heap while locked");
@@ -34,6 +34,6 @@ impl KinitHeap {
     }
 
     pub fn lock() -> usize {
-        unsafe { KINIT_HEAP_POS.fetch_and(0, Ordering::Relaxed) }
+        unsafe { KINIT_HEAP_POS.fetch_and(0, Ordering::SeqCst) }
     }
 }
