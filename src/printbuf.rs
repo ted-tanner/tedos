@@ -129,7 +129,7 @@ macro_rules! print {
             }
 
             // Use a less aggressive spinlock until the lock appears to be acquireable
-            while print_buf.in_use.load(Ordering::Relaxed) {}
+            while print_buf.in_use.load(Ordering::Relaxed) { core::hint::spin_loop() }
         }
 
         let _ = write!(print_buf, $($args)+);

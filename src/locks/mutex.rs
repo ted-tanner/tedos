@@ -39,7 +39,9 @@ impl<T> Mutex<T> {
             }
 
             // Use a less aggressive spinlock until the lock appears to be acquireable
-            while self.is_locked.load(Ordering::Relaxed) {}
+            while self.is_locked.load(Ordering::Relaxed) {
+                core::hint::spin_loop()
+            }
         }
 
         MutexGuard {
