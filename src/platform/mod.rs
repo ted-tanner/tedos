@@ -8,9 +8,13 @@ pub trait PlatformPrimitives {
 
     fn page_size() -> usize;
     fn hart_count() -> usize;
-    fn heap_end() -> *const u8;
+    fn heap_start() -> *mut u8;
+    fn heap_end() -> *mut u8;
 
     fn curr_hartid() -> usize;
+
+    fn enable_interrupts();
+    fn disable_interrupts();
 
     fn abort() -> !;
     fn wait_for_interrupt();
@@ -24,6 +28,8 @@ pub mod uart {
 
     pub trait UartController {
         // No panics allowed in init() or putchar()
+        fn get_ref() -> &'static mut Self;
+
         unsafe fn init();
         fn putchar(byte: u8);
         fn getchar() -> Option<u8>;

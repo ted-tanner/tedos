@@ -1,43 +1,29 @@
-use core::sync::atomic::{AtomicU8, Ordering};
+use core::sync::atomic::{AtomicBool, Ordering};
 
 use crate::alloc::KinitHeap;
 use crate::platform::uart::{Uart, UartController};
 
-const PRINT_BUF_SIZE: usize = 2048;
+const PRINT_BUF_SIZE: usize = 4096;
 
 pub static mut GLOBAL_PRINT_BUF: PrintBuf = PrintBuf {
     buf: 0 as *mut _,
     pos: 0,
 
-    // 0 = uninitialized, 1 = initializing, 2 = ready, 3 = in use
-    state: AtomicU8::new(0),
+    // Mark as true until initialized
+    in_use: AtomicBool::new(true),
 };
 
 pub struct PrintBuf {
     buf: *mut u8,
     pos: usize,
 
-    pub state: AtomicU8,
+    pub in_use: AtomicBool,
 }
 
 impl PrintBuf {
     pub unsafe fn init(&mut self) {
-        let state = self
-            .state
-            .compare_exchange(0, 1, Ordering::Acquire, Ordering::Relaxed)
-            .unwrap_or(1);
-
-        if state != 0 {
-            while self.state.load(Ordering::Relaxed) < 2 {}
-            return;
-        }
-
-        unsafe {
-            Uart::init();
-        }
         self.buf = KinitHeap::alloc::<PRINT_BUF_SIZE>() as *mut _;
-
-        self.state.store(2, Ordering::Release);
+        self.in_use.store(false, Ordering::Release);
     }
 
     pub unsafe fn flush(&mut self) {
@@ -133,15 +119,22 @@ macro_rules! print {
 
         let print_buf = unsafe { &mut $crate::printbuf::GLOBAL_PRINT_BUF };
 
-        while print_buf
-            .state
-            .compare_exchange(2, 3, Ordering::Acquire, Ordering::Relaxed)
-            .is_err()
-        {}
+        loop {
+            if print_buf
+                .in_use
+                .compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed)
+                .is_ok()
+            {
+                break;
+            }
+
+            // Use a less aggressive spinlock until the lock appears to be acquireable
+            while print_buf.in_use.load(Ordering::Relaxed) {}
+        }
 
         let _ = write!(print_buf, $($args)+);
 
-        print_buf.state.store(2, Ordering::Release);
+        print_buf.in_use.store(false, Ordering::Release);
     })
 }
 

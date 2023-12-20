@@ -9,13 +9,14 @@ pub mod register_masks {
     pub const MSTATUS_SMODE: usize = 1 << 11;
     pub const MSTATUS_UMODE: usize = 0 << 11;
 
-    pub const MSTATUS_MMODE_INTERRUPT_ENABLE: usize = 1 << 3;
+    pub const MSTATUS_INTERRUPT_ENABLE: usize = 1 << 3;
 
+    pub const MIE_TIMER_INTERRUPTS: usize = 1 << 7;
+
+    pub const SSTATUS_INTERRUPT_ENABLE: usize = 1 << 1;
     pub const SIE_EXTERNAL_INTERRUPTS: usize = 1 << 9;
     pub const SIE_TIMER_INTERRUPTS: usize = 1 << 5;
     pub const SIE_SOFTWARE_INTERRUPTS: usize = 1 << 1;
-
-    pub const MIE_TIMER_INTERRUPTS: usize = 1 << 7;
 }
 
 pub struct Registers {}

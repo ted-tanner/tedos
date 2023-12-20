@@ -6,6 +6,10 @@ use crate::platform::PlatformPrimitives;
 use core::arch::asm;
 use registers::{register_masks, Registers};
 
+extern "C" {
+    static mut _heap_start: u8; // Defined in the linker script
+}
+
 pub struct RiscVPlatform;
 
 impl PlatformPrimitives for RiscVPlatform {
@@ -33,7 +37,7 @@ impl PlatformPrimitives for RiscVPlatform {
         // initially fire in Machine Mode
         let mstatus = (Registers::mstatus() & register_masks::MSTATUS_MODE_BITS)
             | register_masks::MSTATUS_SMODE
-            | register_masks::MSTATUS_MMODE_INTERRUPT_ENABLE;
+            | register_masks::MSTATUS_INTERRUPT_ENABLE;
         Registers::set_mstatus(mstatus);
 
         // Allow interrupts to be handled in Supervisor Mode
@@ -75,15 +79,36 @@ impl PlatformPrimitives for RiscVPlatform {
         qemu::HART_COUNT
     }
 
+    #[inline(always)]
+    fn heap_start() -> *mut u8 {
+        unsafe { &mut _heap_start as *mut u8 }
+    }
+
     #[cfg(target_machine = "rv64qemu")]
     #[inline(always)]
-    fn heap_end() -> *const u8 {
+    fn heap_end() -> *mut u8 {
         qemu::HEAP_END
     }
 
     #[inline(always)]
     fn curr_hartid() -> usize {
         Registers::tp()
+    }
+
+    #[inline(always)]
+    fn enable_interrupts() {
+        unsafe {
+            Registers::set_sstatus(Registers::sstatus() | register_masks::SSTATUS_INTERRUPT_ENABLE);
+        }
+    }
+
+    #[inline(always)]
+    fn disable_interrupts() {
+        unsafe {
+            Registers::set_sstatus(
+                Registers::sstatus() & !register_masks::SSTATUS_INTERRUPT_ENABLE,
+            );
+        }
     }
 
     fn abort() -> ! {

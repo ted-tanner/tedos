@@ -1,3 +1,5 @@
+use core::sync::atomic::{AtomicU8, Ordering};
+
 use crate::platform::uart::UartController;
 
 const UART_BASE: *mut u8 = 0x1000_0000 as *mut u8;
@@ -10,10 +12,27 @@ const UART_LSR: *mut u8 = 0x1000_0005 as *mut u8;
 const UART_DLL: *mut u8 = UART_BASE;
 const UART_DLM: *mut u8 = UART_IER;
 
+// 0 = uninitialized, 1 = initializing, 2 = initialized
+static mut INIT_STATE: AtomicU8 = AtomicU8::new(0);
+
+static mut UART: Uart = Uart;
+
 pub struct Uart;
 
 impl UartController for Uart {
+    fn get_ref() -> &'static mut Self {
+        unsafe { &mut UART }
+    }
+
     unsafe fn init() {
+        if INIT_STATE
+            .compare_exchange(0, 1, Ordering::Acquire, Ordering::Relaxed)
+            .is_err()
+        {
+            // Is already initializing or initialized
+            return;
+        }
+
         // Set word length to 8 bits
         let lcr_value = 0x03;
         UART_LCR.write_volatile(lcr_value);
@@ -41,6 +60,8 @@ impl UartController for Uart {
 
         // Set DLAB to 0
         UART_LCR.write_volatile(lcr_value);
+
+        INIT_STATE.store(2, Ordering::Release);
     }
 
     fn getchar() -> Option<u8> {

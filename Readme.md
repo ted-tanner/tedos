@@ -18,6 +18,10 @@ Experimental toy OS written in Rust
 
 ## TODO
 
-* Create reusable lock code
-  * Mutex
-  * InitLock
+* Get allocator working
+* Alloc a struct per hart
+  - Should contain a counter of disabled interrupts (meaning, everytime interrupts are disabled, increment. When reenabled, decrement)
+* Mutex should only reenable interrupts if CPU interrupt disable counter goes down to 0
+* Use alloc for printbuf
+* Init UART from kernel_main, not printbuf
+* Get booting with UBoot and OpenSBI
