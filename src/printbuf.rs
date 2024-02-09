@@ -1,9 +1,8 @@
 use core::sync::atomic::{AtomicBool, Ordering};
 
-use crate::alloc::KinitHeap;
+use crate::alloc::PhysPageAllocator;
 use crate::platform::uart::{Uart, UartController};
-
-const PRINT_BUF_SIZE: usize = 4096;
+use crate::platform::PAGE_SIZE;
 
 pub static mut GLOBAL_PRINT_BUF: PrintBuf = PrintBuf {
     buf: 0 as *mut _,
@@ -22,7 +21,7 @@ pub struct PrintBuf {
 
 impl PrintBuf {
     pub unsafe fn init(&mut self) {
-        self.buf = KinitHeap::alloc::<PRINT_BUF_SIZE>() as *mut _;
+        self.buf = PhysPageAllocator::alloc(1) as *mut _;
         self.in_use.store(false, Ordering::Release);
     }
 
@@ -39,7 +38,7 @@ impl PrintBuf {
     }
 
     pub unsafe fn push(&mut self, bytes: &[u8]) {
-        let buf_space = PRINT_BUF_SIZE - self.pos;
+        let buf_space = PAGE_SIZE - self.pos;
 
         if buf_space >= bytes.len() {
             let mut should_flush = false;
@@ -72,7 +71,7 @@ impl PrintBuf {
 
         // buf_space >= bytes.len() evaluated to false, so we know we
         // have more bytes to write
-        let mut chunks = bytes[buf_space..].chunks(PRINT_BUF_SIZE);
+        let mut chunks = bytes[buf_space..].chunks(PAGE_SIZE);
         let last_chunk = chunks.next_back().unwrap_unchecked();
 
         for chunk in chunks {

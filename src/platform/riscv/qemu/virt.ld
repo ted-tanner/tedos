@@ -47,9 +47,11 @@ SECTIONS
         PROVIDE(_bss_end = .);
     }
 
-    /* 4 single-page stacks for the kernel (one for each hart) */
-    PROVIDE(_kstack_start = _bss_end);
-    PROVIDE(_kstack_end = _kstack_start + 0x4000);
+    /* One 4-page stack for each hart (for the kernel) */
+    . = ALIGN(0x1000);
+    PROVIDE(_kstack_start = .);
+    PROVIDE(_kstack_end = _kstack_start + 0x00010000);
 
-    PROVIDE(_heap_start = _kstack_end);
+    . = ALIGN(0x1000);
+    PROVIDE(_heap_start = .);
 }

@@ -1,3 +1,3 @@
-mod mutex;
+mod kmutex;
 
-pub use mutex::Mutex;
+pub use kmutex::KMutex;

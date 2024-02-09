@@ -1,6 +1,7 @@
 use core::fmt::Write;
 use core::sync::atomic::{AtomicBool, Ordering};
 
+use crate::alloc::PhysPageAllocator;
 use crate::platform::uart::{Uart, UartController};
 use crate::platform::{Platform, PlatformPrimitives};
 use crate::printbuf::GLOBAL_PRINT_BUF;
@@ -19,15 +20,26 @@ pub unsafe extern "C" fn kernel_main() {
         Uart::init();
         let _ = writeln!(Uart::get_ref(), "Booting...");
 
-        // TODO: Paging and alloc
+        // TODO: Test the allocator
+        PhysPageAllocator::init();
+
+        // TODO: Paging
 
         GLOBAL_PRINT_BUF.init();
+
+        for _ in 0..1 {
+            const SIZE: usize = 8000;
+
+            for i in 0..SIZE {
+                let alloced = PhysPageAllocator::alloc(1);
+            }
+        }
 
         // TODO: PLIC
         // TODO: Filesystem
 
-        INIT_DONE.store(true, Ordering::Release);
         println!("TedOS booted successfully!");
+        INIT_DONE.store(true, Ordering::Release);
     } else {
         while !INIT_DONE.load(Ordering::Relaxed) {
             Platform::wait_for_interrupt();

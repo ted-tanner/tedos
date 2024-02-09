@@ -68,11 +68,6 @@ impl PlatformPrimitives for RiscVPlatform {
         unreachable!();
     }
 
-    #[inline(always)]
-    fn page_size() -> usize {
-        4096
-    }
-
     #[cfg(target_machine = "rv64qemu")]
     #[inline(always)]
     fn hart_count() -> usize {

@@ -1,26 +1,23 @@
-#![allow(dead_code)]
-
 // TODO: Disable interrupts while holding a lock (take care they
 //       don't get re-enabled)
 //           - Need a per-CPU data structure to count times interrupts
 //             were disabled (and re-enable them when the count drops
 //             to zero)
-
 use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
 use core::sync::atomic::{AtomicBool, Ordering};
 
-pub struct Mutex<T> {
+pub struct KMutex<T> {
     data: UnsafeCell<T>,
     is_locked: AtomicBool,
 }
 
-pub struct MutexGuard<'a, T> {
+pub struct KMutexGuard<'a, T> {
     data: &'a mut T,
     is_locked: &'a AtomicBool,
 }
 
-impl<T> Mutex<T> {
+impl<T> KMutex<T> {
     pub const fn new(data: T) -> Self {
         Self {
             data: UnsafeCell::new(data),
@@ -28,7 +25,7 @@ impl<T> Mutex<T> {
         }
     }
 
-    pub fn lock(&self) -> MutexGuard<T> {
+    pub fn lock(&self) -> KMutexGuard<T> {
         loop {
             if self
                 .is_locked
@@ -44,19 +41,19 @@ impl<T> Mutex<T> {
             }
         }
 
-        MutexGuard {
+        KMutexGuard {
             data: unsafe { &mut *self.data.get() },
             is_locked: &self.is_locked,
         }
     }
 
-    pub fn attempt_lock(&self) -> Option<MutexGuard<T>> {
+    pub fn attempt_lock(&self) -> Option<KMutexGuard<T>> {
         if self
             .is_locked
             .compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed)
             .is_ok()
         {
-            Some(MutexGuard {
+            Some(KMutexGuard {
                 data: unsafe { &mut *self.data.get() },
                 is_locked: &self.is_locked,
             })
@@ -66,13 +63,13 @@ impl<T> Mutex<T> {
     }
 }
 
-impl<T> Drop for MutexGuard<'_, T> {
+impl<T> Drop for KMutexGuard<'_, T> {
     fn drop(&mut self) {
         self.is_locked.store(false, Ordering::Release);
     }
 }
 
-impl<T> Deref for MutexGuard<'_, T> {
+impl<T> Deref for KMutexGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -80,10 +77,10 @@ impl<T> Deref for MutexGuard<'_, T> {
     }
 }
 
-impl<T> DerefMut for MutexGuard<'_, T> {
+impl<T> DerefMut for KMutexGuard<'_, T> {
     fn deref_mut(&mut self) -> &mut T {
         self.data
     }
 }
 
-unsafe impl<T> Sync for Mutex<T> {}
+unsafe impl<T> Sync for KMutex<T> {}
