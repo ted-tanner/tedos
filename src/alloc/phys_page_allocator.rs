@@ -50,7 +50,7 @@ impl PhysPageAllocator {
             let mut curr = allocator.free_list_tail;
 
             loop {
-                if curr == core::ptr::null_mut() {
+                if curr.is_null() {
                     return allocator.alloc_from_unalloced_region(page_count);
                 }
 
@@ -63,7 +63,7 @@ impl PhysPageAllocator {
 
             for i in 0..PHYS_ALLOC_BLOCK_SIZE {
                 let free_list_page_ref = (*curr).pages.get_unchecked_mut(i);
-                if *free_list_page_ref != core::ptr::null_mut() {
+                if !(*free_list_page_ref).is_null() {
                     let page = *free_list_page_ref;
                     *free_list_page_ref = core::ptr::null_mut();
                     (*curr).count -= 1;
@@ -74,11 +74,11 @@ impl PhysPageAllocator {
             unreachable!();
         }
 
-        return allocator.alloc_from_unalloced_region(page_count);
+        allocator.alloc_from_unalloced_region(page_count)
     }
 
     pub unsafe fn dealloc(page: *mut u8) {
-        debug_assert!(page != core::ptr::null_mut());
+        debug_assert!(!page.is_null());
         debug_assert!(page >= Platform::heap_start());
         debug_assert!(page < Platform::heap_end());
         debug_assert!(page as usize % PAGE_SIZE == 0);
@@ -87,7 +87,7 @@ impl PhysPageAllocator {
 
         let mut curr = allocator.free_list_tail;
         loop {
-            if curr == core::ptr::null_mut() {
+            if curr.is_null() {
                 let tail = allocator.free_list_tail;
                 let new_node = Self::alloc(1) as *mut PhysAllocFreeListBlock;
 
@@ -112,7 +112,7 @@ impl PhysPageAllocator {
 
         for i in 0..PHYS_ALLOC_BLOCK_SIZE {
             let free_list_page_ref = (*curr).pages.get_unchecked_mut(i);
-            if *free_list_page_ref == core::ptr::null_mut() {
+            if (*free_list_page_ref).is_null() {
                 *free_list_page_ref = page;
                 (*curr).count += 1;
                 return;
@@ -131,6 +131,6 @@ impl PhysPageAllocator {
         let pages_start = self.unalloced_pages_start;
         self.unalloced_pages_start = pages_end;
 
-        return pages_start;
+        pages_start
     }
 }

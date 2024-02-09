@@ -20,20 +20,11 @@ pub unsafe extern "C" fn kernel_main() {
         Uart::init();
         let _ = writeln!(Uart::get_ref(), "Booting...");
 
-        // TODO: Test the allocator
         PhysPageAllocator::init();
 
         // TODO: Paging
 
         GLOBAL_PRINT_BUF.init();
-
-        for _ in 0..1 {
-            const SIZE: usize = 8000;
-
-            for i in 0..SIZE {
-                let alloced = PhysPageAllocator::alloc(1);
-            }
-        }
 
         // TODO: PLIC
         // TODO: Filesystem
