@@ -2,6 +2,11 @@
 mod riscv;
 #[cfg(target_arch = "riscv64")]
 pub type Platform = riscv::RiscVPlatform;
+#[cfg(target_arch = "riscv64")]
+pub type PageTable = riscv::page_table::RiscVPageTable;
+
+// #[cfg(target_arch = "aarch64")]
+// mod aarch64;
 
 #[cfg(target_arch = "riscv64")]
 pub const PAGE_SIZE: usize = 4096;
@@ -22,7 +27,13 @@ pub trait PlatformPrimitives {
     fn wait_for_interrupt();
 }
 
-pub trait PTAllocator {}
+pub trait PageTablePrimitives {
+    unsafe fn init() -> Self;
+
+    fn map(&mut self, virt_addr: usize, phys_addr: usize, flags: usize);
+    fn unmap(&mut self, virt_addr: usize);
+    fn translate(&self, virt_addr: usize) -> Option<usize>;
+}
 
 pub mod uart {
     #[cfg(target_machine = "rv64qemu")]

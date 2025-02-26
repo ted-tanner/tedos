@@ -1,3 +1,4 @@
+pub mod page_table;
 #[cfg(target_machine = "rv64qemu")]
 pub mod qemu;
 mod registers;

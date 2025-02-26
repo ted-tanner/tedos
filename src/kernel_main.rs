@@ -1,6 +1,9 @@
 use core::fmt::Write;
 use core::sync::atomic::{AtomicBool, Ordering};
 
+use allocator_api2::alloc::Allocator;
+use allocator_api2::vec::Vec;
+
 use crate::alloc::PhysPageAllocator;
 use crate::platform::uart::{Uart, UartController};
 use crate::platform::{Platform, PlatformPrimitives};
@@ -28,6 +31,15 @@ pub unsafe extern "C" fn kernel_main() {
 
         // TODO: PLIC
         // TODO: Filesystem
+
+        {
+            let mut test_vec = Vec::new();
+            for i in 0..30000 {
+                test_vec.push(i);
+            }
+
+            let _ = println!("len: {}, capacity: {}", test_vec.len(), test_vec.capacity());
+        }
 
         println!("TedOS booted successfully!");
         INIT_DONE.store(true, Ordering::Release);

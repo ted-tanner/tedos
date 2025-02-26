@@ -50,7 +50,7 @@ SECTIONS
     /* One 4-page stack for each hart (for the kernel) */
     . = ALIGN(0x1000);
     PROVIDE(_kstack_start = .);
-    PROVIDE(_kstack_end = _kstack_start + 0x00010000);
+        PROVIDE(_kstack_end = _kstack_start + 0x00010000);
 
     . = ALIGN(0x1000);
     PROVIDE(_heap_start = .);

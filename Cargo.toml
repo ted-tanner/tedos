@@ -14,3 +14,6 @@ panic = "abort"
 
 [profile.release]
 panic = "abort"
+
+[dependencies]
+allocator-api2 = { version = "0.2.21", features = ["alloc"], default-features = false }
